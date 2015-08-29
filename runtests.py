@@ -17,6 +17,7 @@ if not settings.configured:
             'fields_bundle',
         ],
         MIDDLEWARE_CLASSES=[],
+        STATIC_URL='/static/'
     )
 
 
