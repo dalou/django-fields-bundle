@@ -75,7 +75,7 @@ class PriceField(forms.IntegerField):
         super(PriceField, self).__init__(*args, **kwargs)
 
     default_error_messages = {
-        'invalid': _(u'Cette valeur doit être décimale.'),
+        'invalid': 'This is not a decimal.',
     }
     def to_python(self, value):
         # if not value.isdigit():
@@ -89,7 +89,7 @@ class PriceWidget(forms.widgets.TextInput):
         # css = {
         #     'all': ('pretty.css',)
         # }
-        js = (settings.STATIC_URL + 'cargo/forms/prices.js', )
+        js = (settings.STATIC_URL + 'fields_bundle/prices.js', )
 
     currency = DEFAULT_CURRENCY
 
