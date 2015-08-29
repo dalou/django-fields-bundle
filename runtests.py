@@ -1,27 +1,29 @@
 #!/usr/bin/env python
+import os
 import sys
 
-from os.path import dirname, abspath
-
 from django.conf import settings
+from django.core.management import execute_from_command_line
+
 
 if not settings.configured:
     settings.configure(
+        DATABASES={
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+            }
+        },
         INSTALLED_APPS=[
-            'stylus_watcher',
-        ]
+            'fields_bundle',
+        ],
+        MIDDLEWARE_CLASSES=[],
     )
 
 
-def runtests(*test_args):
-    # if not test_args:
-    #     test_args = ['stylus_watcher']
-    # parent = dirname(abspath(__file__))
-    # sys.path.insert(0, parent)
-    # failures = run_tests(test_args, verbosity=1, interactive=True)
-    # sys.exit(failures)
-    pass
+def runtests():
+    argv = sys.argv[:1] + ['test'] + sys.argv[1:]
+    execute_from_command_line(argv)
 
 
 if __name__ == '__main__':
-    runtests(*sys.argv[1:])
+    runtests()

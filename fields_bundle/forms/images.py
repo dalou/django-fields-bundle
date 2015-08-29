@@ -10,7 +10,11 @@ from django.utils.encoding import force_unicode
 from django.template.loader import render_to_string
 from django.forms.util import flatatt
 
-from sorl.thumbnail.shortcuts import get_thumbnail
+try:
+    from sorl.thumbnail.shortcuts import get_thumbnail
+except:
+    def get_thumbnail(image_url, *args, **kwargs):
+        return image_url
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +26,8 @@ class ImageInput(OriginalFileInput):
     been previously uploaded. Selecting the image will open the file
     dialog and allow for selecting a new or replacing image file.
     """
-    template_name = 'cargo/forms/widgets/_image_input.html'
-    attrs = {'accept': 'image/*'}
+    template_name = 'fields_bundle/_image_input.html'
+    attrs = { 'accept': 'image/*' }
 
     def render(self, name, value, attrs=None):
         """
@@ -61,7 +65,5 @@ class ImageInput(OriginalFileInput):
             'image_id': "%s-image" % final_attrs['id'],
             'name': "%s" % final_attrs['name'],
         }))
-
-
 
 
