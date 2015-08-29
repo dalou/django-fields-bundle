@@ -75,7 +75,7 @@ class PriceField(forms.IntegerField):
         super(PriceField, self).__init__(*args, **kwargs)
 
     default_error_messages = {
-        'invalid': _(u'Cette valeur doit être décimale.'),
+        'invalid': 'This is not a decimal.',
     }
     def to_python(self, value):
         # if not value.isdigit():
