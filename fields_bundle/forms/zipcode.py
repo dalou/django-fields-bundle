@@ -3,7 +3,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from localflavor.fr.forms import FRZipCodeField as OriginalFRZipCodeField
+from django.contrib.localflavor.fr.forms import FRZipCodeField as OriginalFRZipCodeField
 
 
 class ZipCodeField(OriginalFRZipCodeField):
