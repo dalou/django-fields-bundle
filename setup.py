@@ -61,6 +61,7 @@ setup(
     test_suite='runtests.runtests',
     install_requires=[
         'django >= 1.8.4, <= 1.9',
-        'django-localflavor >= 1.1'
+        'django-localflavor >= 1.1',
+        "babel >= 2.0"
     ],
 )
