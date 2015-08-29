@@ -46,7 +46,7 @@ setup(
     author='Autrusseau Damien',
     author_email='autrusseau.damien@gmail.com',
     url='http://github.com/dalou/django-fields-bundle',
-    packages=find_packages(), #find_packages(exclude=('tests*',)),
+    packages=find_packages(exclude=('tests*',)),
     zip_safe=False,
     license='MIT',
     classifiers=[
@@ -58,10 +58,9 @@ setup(
         'Programming Language :: Python',
         'Framework :: Django',
     ],
-    test_suite='runtests.runtests',
+    # test_suite='runtests.runtests',
     install_requires=[
         'django >= 1.8.4, <= 1.9',
-        'django-localflavor >= 1.1',
-        "babel >= 2.0"
+        "babel >= 1.3"
     ],
 )
