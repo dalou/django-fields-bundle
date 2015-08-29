@@ -9,7 +9,7 @@ from django.conf import settings
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.encoding import force_unicode
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 
 
 from babel.numbers import format_number, format_decimal, format_percent

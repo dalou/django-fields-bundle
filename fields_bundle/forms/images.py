@@ -8,7 +8,7 @@ from django.template import Context
 from django.forms.widgets import FileInput as OriginalFileInput
 from django.utils.encoding import force_unicode
 from django.template.loader import render_to_string
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 
 try:
     from sorl.thumbnail.shortcuts import get_thumbnail
