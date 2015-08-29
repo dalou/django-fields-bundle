@@ -89,7 +89,7 @@ class PriceWidget(forms.widgets.TextInput):
         # css = {
         #     'all': ('pretty.css',)
         # }
-        js = (settings.STATIC_URL + 'cargo/forms/prices.js', )
+        js = (settings.STATIC_URL + 'fields_bundle/prices.js', )
 
     currency = DEFAULT_CURRENCY
 
