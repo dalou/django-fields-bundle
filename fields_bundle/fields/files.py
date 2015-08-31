@@ -3,6 +3,8 @@ from django.forms import forms
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
 
+
+
 class ContentTypeRestrictedFileField(FileField):
     """
     Same as FileField, but you can specify:
@@ -12,14 +14,14 @@ class ContentTypeRestrictedFileField(FileField):
             5MB - 5242880
             10MB - 10485760
             20MB - 20971520
-            50MB - 5242880
+            50MB - 52428800
             100MB 104857600
             250MB - 214958080
             500MB - 429916160
     """
     def __init__(self, *args, **kwargs):
-        self.content_types = kwargs.pop("content_types")
-        self.max_upload_size = kwargs.pop("max_upload_size")
+        self.content_types = kwargs.pop("content_types", [])
+        self.max_upload_size = kwargs.pop("max_upload_size", 5242880)
 
         super(ContentTypeRestrictedFileField, self).__init__(*args, **kwargs)
 
