@@ -6,8 +6,11 @@ MANIFEST
 *.py[cod]
 *.egg-info
 *.egg
+*.eggs
 docs/_build/
 .sass-cache
 .coverage
 .tox
 .log
+.eggs
+.egg
