@@ -69,7 +69,7 @@ class PriceField(forms.IntegerField):
                     'placeholder': self.currency,
                     'class': 'price-formated',
                     'data-currency': self.currency,
-                    'data-currency-patterns': original_json.dumps(CURRENCY_PATTERNS)
+                    'data-currency-patterns': json.dumps(CURRENCY_PATTERNS)
                 })
             del kwargs['currency']
         super(PriceField, self).__init__(*args, **kwargs)
@@ -97,6 +97,14 @@ class PriceWidget(forms.widgets.TextInput):
         if 'currency' in kwargs:
             self.currency = kwargs['currency']
             del kwargs['currency']
+        attrs = {
+            'placeholder': self.currency,
+            'class': 'price-formated',
+            'data-currency': self.currency,
+            'data-currency-patterns': json.dumps(CURRENCY_PATTERNS)
+        }
+        attrs.update(kwargs.get('attrs', {}))
+        kwargs['attrs'] = attrs
         super(PriceWidget, self).__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None):
