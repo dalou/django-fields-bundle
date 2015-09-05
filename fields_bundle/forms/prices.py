@@ -10,7 +10,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.encoding import force_unicode
 from django.forms.utils import flatatt
-
+from decimal import *
 
 from babel.numbers import format_number, format_decimal, format_percent
 
@@ -56,12 +56,14 @@ def price_format_currency_to_decimal(value, currency='EUR'):
 
 
 # In relation to assets/js/input_format.js
-class PriceField(forms.IntegerField):
+class PriceField(forms.DecimalField):
 
     currency = DEFAULT_CURRENCY
 
     def __init__(self, *args, **kwargs):
-        self.currency = kwargs['currency'] if 'currency' in kwargs else self.currency
+        self.currency = kwargs['currency'] = kwargs['currency'] if 'currency' in kwargs else self.currency
+        del kwargs['currency']
+
         if 'widget' not in kwargs:
             kwargs['widget'] = PriceWidget(
                 currency=self.currency,
@@ -71,7 +73,6 @@ class PriceField(forms.IntegerField):
                     'data-currency': self.currency,
                     'data-currency-patterns': json.dumps(CURRENCY_PATTERNS)
                 })
-            del kwargs['currency']
         super(PriceField, self).__init__(*args, **kwargs)
 
     default_error_messages = {
@@ -80,7 +81,10 @@ class PriceField(forms.IntegerField):
     def to_python(self, value):
         # if not value.isdigit():
         #     raise ValidationError(self.error_messages['invalid'])
-        return price_format_currency_to_decimal(value, self.currency)
+
+        float_value = price_format_currency_to_decimal(value, self.currency)
+        # print super(PriceField, self).to_python(float_value)
+        return super(PriceField, self).to_python(float_value)
 
 
 class PriceWidget(forms.widgets.TextInput):

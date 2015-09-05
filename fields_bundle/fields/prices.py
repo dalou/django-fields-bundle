@@ -18,7 +18,7 @@ class PriceField(models.DecimalField):
         super(PriceField, self).__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
-        kwargs['widget'] = PriceInput
+        kwargs['form_class'] = PriceFormField
         return super(PriceField, self).formfield(**kwargs)
 
 try:
