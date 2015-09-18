@@ -61,6 +61,7 @@ setup(
     # test_suite='runtests.runtests',
     install_requires=[
         'django >= 1.8.4, <= 1.9',
-        "babel >= 1.3"
+        "jsonfield == 1.0.3",
+        "babel == 1.3"
     ],
 )
