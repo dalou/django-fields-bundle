@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 import os
 import logging
@@ -23,52 +25,48 @@ logger = logging.getLogger(__name__)
 class ImageInput(OriginalFileInput):
     template_name = 'fields_bundle/_image_input.html'
 
-# class ImageInput(OriginalFileInput):
-#     """
-#     Widget prodiving a input element for file uploads based on the
-#     Django ``FileInput`` element. It hides the actual browser-specific
-#     input element and shows the available image for images that have
-#     been previously uploaded. Selecting the image will open the file
-#     dialog and allow for selecting a new or replacing image file.
-#     """
-#     template_name = 'fields_bundle/_image_input.html'
-#     attrs = { 'accept': 'image/*' }
 
-#     def render(self, name, value, attrs=None):
-#         """
-#         Render the ``input`` field based on the defined ``template_name``. The
-#         image URL is take from *value* and is provided to the template as
-#         ``image_url`` context variable relative to ``MEDIA_URL``. Further
-#         attributes for the ``input`` element are provide in ``input_attrs`` and
-#         contain parameters specified in *attrs* and *name*.
-#         If *value* contains no valid image URL an empty string will be provided
-#         in the context.
-#         """
-#         if value is None:
-#             value = ''
+class CroppedImageInput(forms.widgets.HiddenInput):
+    class Media:
+        css = {
+            'all': (
+                settings.STATIC_URL + 'fields_bundle/cropper.css',
+            )
+        }
+        js = (
+            settings.STATIC_URL + 'fields_bundle/cropper.js',
+            # settings.STATIC_URL + 'js/cropper.js',
+        )
 
-#         final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
-#         if value != '':
-#             # Only add the 'value' attribute if a value is non-empty.
-#             final_attrs['value'] = force_unicode(self._format_value(value))
-
-#         image_url = final_attrs.get('value', '')
-#         image_original_url = None
-#         image_thumb = None
-#         if image_url:
-#             image_original_url = os.path.join(settings.MEDIA_URL, image_url)
-#             try:
-#                 image_thumb = get_thumbnail(image_url, 'x100', crop='center', upscale=True)
-#             except IOError as inst:
-#                 logger.error(inst)
-
-#         return render_to_string(self.template_name, Context({
-#             'image_thumb': image_thumb,
-#             'input_attrs': flatatt(final_attrs),
-#             'image_url': image_url,
-#             'image_original_url': image_original_url,
-#             'image_id': "%s-image" % final_attrs['id'],
-#             'name': "%s" % final_attrs['name'],
-#         }))
+class CroppedImageField(forms.CharField):
+    widget = CroppedImageInput
+    default_error_messages = {
+        'invalid_image': "Upload a valid image. The file you uploaded was either not an image or a corrupted image.",
+    }
+    image_field = None
 
 
+    def __init__(self, *args, **kwargs):
+
+        required = kwargs.get('required', False)
+        widget = kwargs.pop('widget', None)
+        self.image_field = kwargs.pop('label')
+
+        # print widget == AdminFileWidget, isinstance(widget, AdminFileWidget), widget
+        # print
+
+
+        # if widget:
+        # if widget == AdminFileWidget or isinstance(widget, AdminFileWidget):
+        widget = CroppedImageInput( attrs={
+            'class': 'image-croppable',
+            'data-image-cropped': self.image_field,
+        })
+        kwargs['widget'] = widget
+        kwargs['label'] = ""
+
+        super(CroppedImageField, self).__init__(*args, **kwargs)
+
+
+    def to_python(self, data):
+        return super(CroppedImageField, self).to_python(data)
