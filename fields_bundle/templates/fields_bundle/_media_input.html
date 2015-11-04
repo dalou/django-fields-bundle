@@ -1,0 +1,131 @@
+<a class="fields_bundle-media_input" id="div_{{ id }}">
+
+    <span class="fields_bundle-media_input-media {% if value %}active{% endif %}">
+
+        <span class="fields_bundle-media_input-preview">{{ value.html|safe }}</span>
+        <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-change">
+            {{ change_message|default:"Changer"|safe }}
+        </button>
+        {% if not required %}
+        <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-remove">
+            {{ remove_message|default:"Retirer"|safe }}
+        </button>
+        {% endif %}
+    </span>
+    <span class="fields_bundle-media_input-empty {% if not value %}active{% endif %}">
+        <button type="button" class="btn btn-primary fields_bundle-media_input-add-image">
+            {{ empty_message|default:"Ajouter une image"|safe }}
+        </button>
+        {% if not only_file %}
+        <span class="fields_bundle-media_input-or">ou</span>
+        <input type="text" {% if not value.is_image %}name="{{ name }}"{% endif %} class="form-control fields_bundle-media_input-add-embed" placeholder="{{ empty_message|default:"Coller ici un code embed"|safe }}" />
+        {% endif %}
+    </span>
+    <span class="fields_bundle-media_input-inputs">
+        <span style="">
+            {% if not required %}
+                {{ clear }}
+            {% endif %}
+            <input {{ input_attrs|safe }} type="file" {% if value.is_image %}name="{{ name }}"{% endif %} accept="image/*" />
+        </span>
+    </span>
+    <style>
+        .fields_bundle-media_input-media { position: relative; text-align: center; display: inline-block; }
+        .fields_bundle-media_input-button { opacity:0; }
+        .fields_bundle-media_input-media:hover .fields_bundle-media_input-button { opacity:1; }
+        .fields_bundle-media_input > span { display:none; }
+        .fields_bundle-media_input .active { display:inline-block; }
+        .fields_bundle-media_input-change { position:absolute; top:5px; left:0px; right:0px; margin: auto; }
+        .fields_bundle-media_input-remove { position:absolute; bottom:5px; left:0px; right:0px; margin: auto; }
+    </style>
+    <script>
+        $('#div_{{ id }}').each(function(self)
+        {
+            self = $(this);
+            var $form = $(self.find('input').eq(0)[0].form);
+            if($form.attr('enctype') != 'multipart/form-data')
+            {
+                $form.attr('enctype', 'multipart/form-data');
+            }
+            self.on('click', '.fields_bundle-media_input-remove', function()
+            {
+                self.find('.fields_bundle-media_input-change').change();
+                self.find('input[type=checkbox]').eq(1).prop('checked', true)
+            });
+            self.on('click', '.fields_bundle-media_input-change', function()
+            {
+                self.find('.fields_bundle-media_input-media').removeClass('active');
+                self.find('.fields_bundle-media_input-empty').addClass('active');
+                self.find('.fields_bundle-media_input-embed').val('');
+                self.find('input[type=checkbox]').eq(1).prop('checked', false)
+            });
+
+            self.on('click', '.fields_bundle-media_input-embed', function()
+            {
+                self.find('textarea').show()
+                // self.find('.fields_bundle-media_input-media').addClass('active');
+                // self.find('.fields_bundle-media_input-empty').removeClass('active');
+                self.find('input[type=checkbox]').eq(0).prop('checked', false).change();
+            });
+
+            /* validate embed code */
+            self.on('paste', '.fields_bundle-media_input-add-embed', function(e, input)
+            {
+                input = $(this);
+                setTimeout(function(e) {
+
+                    self.find('input[type=text]').attr('name', '{{ name }}');
+                    self.find('input[type=file]').removeAttr('name');
+
+                    self.find('.fields_bundle-media_input-preview').html(input.val());
+                    self.find('.fields_bundle-media_input-media').addClass('active');
+                    self.find('.fields_bundle-media_input-empty').removeClass('active');
+                }, 0);
+            });
+
+            /* click to add image from input file */
+            self.on('click', '.fields_bundle-media_input-add-image', function()
+            {
+                self.find('input[type=file]').click();
+            });
+
+            /* Upload image receive */
+            self.on('change', 'input[type=file]', function(e)
+            {
+                var files = this.files;
+                if (!files || files.length == 0)
+                {
+                    $(this).val(null);
+                    return false;
+                }
+                if (files.length > 1) {
+                    console.log("Not supporting more than 1 file");
+                }
+                var file = files[0];
+                if(!file.type.match(/image.*/)) { }
+                else
+                {
+                    self.find('input[type=text]').removeAttr('name');
+                    self.find('input[type=file]').attr('name', '{{ name }}');
+                    var reader = new FileReader();
+                    reader.onload = (function(newFile)
+                    {
+                        return function(e) {
+                            self.find('.fields_bundle-media_input-preview').html('<img src="'+e.target.result+'"/>');
+                            self.find('.fields_bundle-media_input-media').addClass('active');
+                            self.find('.fields_bundle-media_input-empty').removeClass('active');
+                            //APPLY($input, $input_cropped);
+                        };
+                    })(file);
+                    var ret = reader.readAsDataURL(file), canvas = document.createElement("canvas");
+                    ctx = canvas.getContext("2d");
+                    self.onload = function()
+                    {
+                        ctx.drawImage($input_cropped.parent(), 100, 100);
+                    }
+                }
+            });
+        })
+    </script>
+
+</a>

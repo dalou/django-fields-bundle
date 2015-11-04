@@ -1,7 +1,7 @@
-from .colors import ColorField, ColorInput, RGBColorField
-from .icons import IconField, IconInput
-from .prices import PriceField, PriceInput
-from .images import ImageInput, CroppedImageField, CroppedImageInput
-from .dates import DateField, DateTimeField, DateTimeInput, DateInput
-
-from tinymce.widgets import TinyMCE as TinyMCEInput
+from .color import ColorField, ColorInput, RGBColorField
+from .icon import IconField, IconInput
+from .price import PriceField, PriceInput
+from .image import ImageInput, CroppedImageField, CroppedImageInput
+from .date import DateField, DateTimeField, DateTimeInput, DateInput
+from .media import MediaInput, MediaField
+from .html import HtmlInput, InlineHtmlInput

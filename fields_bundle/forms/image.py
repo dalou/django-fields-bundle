@@ -26,15 +26,15 @@ class ImageInput(OriginalFileInput):
     template_name = 'fields_bundle/_image_input.html'
 
 
-class CroppedImageInput(forms.widgets.HiddenInput):
+class CroppedImageInput(forms.widgets.TextInput):
     class Media:
         css = {
             'all': (
-                settings.STATIC_URL + 'fields_bundle/cropper.css',
+                settings.STATIC_URL + 'fields_bundle/image_cropped.css',
             )
         }
         js = (
-            settings.STATIC_URL + 'fields_bundle/cropper.js',
+            settings.STATIC_URL + 'fields_bundle/image_cropped.js',
             # settings.STATIC_URL + 'js/cropper.js',
         )
 
@@ -60,7 +60,8 @@ class CroppedImageField(forms.CharField):
         # if widget == AdminFileWidget or isinstance(widget, AdminFileWidget):
         widget = CroppedImageInput( attrs={
             'class': 'image-croppable',
-            'data-image-cropped': self.image_field,
+            'data-fields_bundle-croppedimage': self.image_field,
+            'style': 'display:none;',
         })
         kwargs['widget'] = widget
         kwargs['label'] = ""

@@ -1,8 +1,10 @@
 from .uuid_field import UUIDField
-from .colors import ColorField
-from .icons import IconField
-from .prices import PriceField
-from .images import CroppedImageField
-from .files import ContentTypeRestrictedFileField, UniqueFilename, unique_filename
+from .color import ColorField
+from .icon import IconField
+from .price import PriceField
+from .image import CroppedImageField
+from .media import MediaField
+from .percent import PercentField
+from .file import ContentTypeRestrictedFileField, UniqueFilename, unique_filename
+from .html import HtmlField, HTMLField
 from jsonfield import JSONField
-from tinymce.models import HTMLField

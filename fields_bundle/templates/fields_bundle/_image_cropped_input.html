@@ -1,0 +1,23 @@
+<div class="fields_bundle-image_cropped" id="div_{{ field.auto_id }}">
+
+    <div class="fields_bundle-image_cropped-image {% if image_field.value %}active{% endif %}">
+        <img src="{% if image_field.value %}{{ image_field.value.url }}{% endif %}" />
+        <a class="fields_bundle-image_cropped-change">
+            {{ change_message|default:"change"|safe }}
+        </a>
+        {% if not field.field.required %}
+        <a class="fields_bundle-image_cropped-remove">
+            {{ remove_message|default:"remove"|safe }}
+        </a>
+        {% endif %}
+    </div>
+    <div class="fields_bundle-image_cropped-empty {% if not image_field.value %}active{% endif %}">
+        <a class="fields_bundle-image_cropped-change">
+            {{ empty_message|default:"add image"|safe }}
+        </a>
+    </div>
+    <div class="hidden">
+        {{ image_field }}
+        {{ image_cropped_field }}
+    </div>
+</div>
