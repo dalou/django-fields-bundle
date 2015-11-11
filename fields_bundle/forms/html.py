@@ -1,153 +1,151 @@
-
+from __future__ import unicode_literals
+import os
 from django.conf import settings
+import fields_bundle.settings
+from django import forms
 from django.utils.safestring import mark_safe
+from django.contrib.admin import widgets as admin_widgets
 from django.forms.widgets import flatatt
-from tinymce.widgets import get_language_config, TinyMCE as TinyMCEInput
-import tinymce.settings
+from django.utils.html import escape
+from django.template import Context
+from django.utils.encoding import force_unicode
+from django.template.loader import render_to_string
+import uuid
+
+try:
+    from collections import OrderedDict as SortedDict
+except ImportError:
+    from django.utils.datastructures import SortedDict
+from django.utils.safestring import mark_safe
+from django.utils.translation import get_language, ugettext as _
+import json
+try:
+    from django.utils.encoding import smart_text as smart_unicode
+except ImportError:
+    try:
+        from django.utils.encoding import smart_unicode
+    except ImportError:
+        from django.forms.util import smart_unicode
 
 
-class HtmlInput(TinyMCEInput):
+class HtmlField(forms.CharField):
+    def __init__(self, *args, **kwargs):
 
-    def __init__(self, content_language=None, attrs=None, tinymce=None, placeholder=None):
+        attrs = kwargs.get('attrs', {})
+        if not attrs.get('placeholder'):
+            attrs['placeholder'] = kwargs.get('label', '')
 
-        super(HtmlInput, self).__init__(attrs=attrs, mce_attrs=tinymce)
-
-
-
-    def _media(self):
-        return forms.Media(js=[
-            "//tinymce.cachefly.net/4.2/tinymce.min.js"
-        ])
-
-
-
-    def get_mce_config(self, attrs):
-
-        mce_config = tinymce.settings.DEFAULT_CONFIG.copy()
-        # mce_config.update(get_language_config(self.content_language))
-        # if tinymce.settings.USE_FILEBROWSER:
-        #     mce_config['file_browser_callback'] = "djangoFileBrowser"
-        mce_config.update(self.mce_attrs)
-        if mce_config['mode'] == 'exact':
-            mce_config['elements'] = attrs['id']
-
-        mce_config['language'] = None
-        mce_config['language_url'] = settings.STATIC_URL + 'vendors/tinymce/langs/fr.js'
-
-        return mce_config
-
-    def render(self, name, value, attrs=None):
+        kwargs['widget'] = HtmlInput(
+            tinymce=kwargs.pop('tinymce', None),
+            inline=kwargs.pop('inline', False),
+            attrs=kwargs.get('attrs', attrs)
+        )
+        super(HtmlField, self).__init__(*args, **kwargs)
 
 
-        original_render = super(HtmlInput, self).render(name, value, attrs=attrs)
-        html = u"""
-            %s
-            <script>
-                var load_tinymce = function()
-                {
-                    (function ($)
-                    {
-                        //function initTinyMCE($e) {
-                        var $e = $("#%s");
-                        if ($e.parents('.empty-form').length == 0)
-                        {
-                            // Don't do empty inlines
-                            var mce_conf = $.parseJSON($e.attr('data-mce-conf'));
-                            /* var id = $e.attr('id');
-                            if ('elements' in mce_conf && mce_conf['mode'] == 'exact')
-                            {
-                                mce_conf['elements'] = id;
-                            }*/
-                            if ($e.attr('data-mce-gz-conf'))
-                            {
-                                tinyMCE_GZ.init($.parseJSON($e.attr('data-mce-gz-conf')));
-                            }
-                            var id = mce_conf['elements'];
-                            //mce_conf['selector'] = '#'+id;
-                            //mce_conf['elements'] = null;
-                            if (!tinymce.editors[id])
-                            {
+class HtmlInput(forms.Textarea):
 
-                                tinymce.init(mce_conf);
-                            }
-                        }
-                        //}
+    class Media:
+        js = [
+            fields_bundle.settings.FIELDS_BUNDLE_TINYMCE_URL,
+            'fields_bundle/html_input.js',
+        ]
+        css = {
+            'all': ('fields_bundle/html_input.css', )
+        }
 
-                        /*$(function () {
-                            // initialize the TinyMCE editors on load
-                            $('.tinymce').each(function () {
-                                initTinyMCE($(this));
-                            });
-
-                            // initialize the TinyMCE editor after adding an inline
-                            // XXX: We don't use jQuery's click event as it won't work in Django 1.4
-                            document.body.addEventListener("click", function(ev) {
-                              if(!ev.target.parentNode || ev.target.parentNode.className.indexOf("add-row") === -1) {
-                                return;
-                              }
-                              var $addRow = $(ev.target.parentNode);
-                              setTimeout(function() {  // We have to wait until the inline is added
-                                $('textarea.tinymce', $addRow.parent()).each(function () {
-                                  initTinyMCE($(this));
-                                });
-                              }, 0);
-                            }, true);
-                        });*/
-
-                    }(django && django.jQuery || jQuery));
-                }
-                if(typeof tinymce == 'undefined' )
-                {
-                    var script = document.createElement('script');
-                    script.src = "//tinymce.cachefly.net/4.2/tinymce.min.js";
-                    var head = document.getElementsByTagName('head')[0], done = false;
-                    script.onload = script.onreadystatechange = function() {
-
-                        if (!done && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete'))
-                        {
-                            done = true
-                            // callback function provided as param
-                            load_tinymce();
-                            console.log('load')
-                            script.onload = script.onreadystatechange = null;
-                            head.removeChild(script);
-                        };
-                    };
-                    head.appendChild(script);
-                }
-                else
-                {
-                    load_tinymce();
-                }
-            </script>
-        """ % (original_render, attrs['id'])
-        return mark_safe(html)
+    def __init__(self, attrs=None, tinymce=None, inline=False):
+        super(HtmlInput, self).__init__(attrs=attrs)
+        tinymce = tinymce or {}
+        self.tinymce = tinymce
+        self.inline = inline
 
 
-class InlineHtmlInput(HtmlInput):
+    def get_config_json(self, config):
+        # Fix for js functions
+        js_functions = {}
+        for k in ('paste_preprocess', 'paste_postprocess'):
+            if k in config:
+               js_functions[k] = config[k]
+               del config[k]
+        config_json = json.dumps(config)
+        for k in js_functions:
+            index = config_json.rfind('}')
+            config_json = config_json[:index]+', '+k+':'+js_functions[k].strip()+config_json[index:]
+        return config_json
 
-    def get_mce_config(self, attrs):
-        print attrs.get('placeholder')
-        mce_config = super(InlineHtmlInput, self).get_mce_config(attrs)
-        mce_config['inline'] = True
-        mce_config['elements'] = "div_inline_%s" % attrs['name']
+    def get_tinymce_config(self, name, attrs):
+        config = fields_bundle.settings.FIELDS_BUNDLE_TINYMCE_DEFAULT_CONFIG.copy()
+        config.update(self.tinymce)
+        # if mce_config['mode'] == 'exact':
+        #
+        config['mode'] = 'exact'
+        config['elements'] = attrs['id']
+        config['placeholder'] = attrs.get('placeholder', '')
 
-        mce_config['force_br_newlines'] = False
-        mce_config['force_p_newlines'] = False
-        mce_config['forced_root_block'] = ''
+        config['language'] = None
+        config['language_url'] = settings.STATIC_URL + 'vendors/tinymce/langs/fr.js'
 
-        return mce_config
+        if self.inline:
+            config['inline'] = True
+            config['content_css'] = None
+            config['elements'] = "div_inline_%s" % name
+
+            config['force_br_newlines'] = False
+            config['force_p_newlines'] = False
+            config['forced_root_block'] = ''
+
+        if config.get('content_css', None):
+            content_css_new = []
+            for url in config['content_css'].split(','):
+                if  not url.startswith('http:') or \
+                    not url.startswith('https:') or \
+                    not url.startswith('//'):
+                    content_css_new.append(os.path.join(settings.STATIC_URL, url))
+                else:
+                    content_css_new.append(url)
+            config['content_css'] = ",".join(content_css_new)
+
+        if 'external_plugins' in config:
+
+            for key, url in config['external_plugins'].items():
+                if  not url.startswith('http:') or \
+                    not url.startswith('https:') or \
+                    not url.startswith('//'):
+                    config['external_plugins'][key] = os.path.join(settings.STATIC_URL, url)
+
+
+        return config
 
     def render(self, name, value, attrs=None):
-        print attrs.get('placeholder')
 
-        original_render = super(InlineHtmlInput, self).render(name, value, attrs=attrs)
+        if value is None:
+            value = ''
+        value = smart_unicode(value)
+        flatattrs = self.build_attrs(attrs)
+        flatattrs['name'] = name
 
-        html = u"""<div class="fields_bundle-tinymce_inline">
-            <div id="div_inline_%s" placeholder="%s">%s</div>
-            <div style="display:none;">
-                %s
+        config = {
+            'inline': self.inline,
+            'type' : 'tinymce',
+            'id' : attrs['id'],
+            'name' : name,
+            'settings' : self.get_tinymce_config(name, attrs)
+        }
+        flatattrs['data-fields_bundle-html_input'] = self.get_config_json(config)
+
+
+        if self.inline:
+
+            html = [u"""<div class="fields_bundle-tinymce_inline">
+                <div id="div_inline_%s" placeholder="%s">%s</div>
+                <div style="display:none;">
+                    <textarea%s>%s</textarea>
+                </div>
             </div>
-        </div>""" % (name, "TEST",  value, original_render)
+            """ % (name, flatattrs.get('placeholder'), mark_safe(value), flatatt(flatattrs), escape(value))]
+            return mark_safe('\n'.join(html))
 
-        return mark_safe(html)
+        else:
+            html =  ['<textarea%s>%s</textarea>' % (flatatt(flatattrs), escape(value))]
+            return mark_safe('\n'.join(html))

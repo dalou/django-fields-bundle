@@ -4,17 +4,21 @@
 
         <span class="fields_bundle-media_input-preview">{{ value.html|safe }}</span>
         <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-change">
-            {{ change_message|default:"Changer"|safe }}
+            {{ change_message|default:"Retirer"|safe }}
         </button>
-        {% if not required %}
+        <!-- {% if not required %}
         <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-remove">
             {{ remove_message|default:"Retirer"|safe }}
         </button>
-        {% endif %}
+        {% endif %} -->
     </span>
     <span class="fields_bundle-media_input-empty {% if not value %}active{% endif %}">
         <button type="button" class="btn btn-primary fields_bundle-media_input-add-image">
-            {{ empty_message|default:"Ajouter une image"|safe }}
+            {% if not only_file %}
+                {{ empty_message|default:"Ajouter une image"|safe }}
+            {% else %}
+                {{ empty_message|default:"Ajouter"|safe }}
+            {% endif%}
         </button>
         {% if not only_file %}
         <span class="fields_bundle-media_input-or">ou</span>
@@ -26,12 +30,13 @@
             {% if not required %}
                 {{ clear }}
             {% endif %}
-            <input {{ input_attrs|safe }} type="file" {% if value.is_image %}name="{{ name }}"{% endif %} accept="image/*" />
+            <input class="fields_bundle-media_input-file" {{ input_attrs|safe }} type="file" {% if value.is_image %}name="{{ name }}"{% endif %} accept="image/*" />
         </span>
     </span>
     <style>
         .fields_bundle-media_input-media { position: relative; text-align: center; display: inline-block; }
         .fields_bundle-media_input-button { opacity:0; }
+        .fields_bundle-media_input-preview { min-height: 130px; }
         .fields_bundle-media_input-media:hover .fields_bundle-media_input-button { opacity:1; }
         .fields_bundle-media_input > span { display:none; }
         .fields_bundle-media_input .active { display:inline-block; }
@@ -50,23 +55,23 @@
             self.on('click', '.fields_bundle-media_input-remove', function()
             {
                 self.find('.fields_bundle-media_input-change').change();
-                self.find('input[type=checkbox]').eq(1).prop('checked', true)
+                self.find('input[type=checkbox]').eq(0).prop('checked', true)
             });
             self.on('click', '.fields_bundle-media_input-change', function()
             {
                 self.find('.fields_bundle-media_input-media').removeClass('active');
                 self.find('.fields_bundle-media_input-empty').addClass('active');
                 self.find('.fields_bundle-media_input-embed').val('');
-                self.find('input[type=checkbox]').eq(1).prop('checked', false)
+                self.find('input[type=checkbox]').eq(0).prop('checked', true)
             });
 
-            self.on('click', '.fields_bundle-media_input-embed', function()
-            {
-                self.find('textarea').show()
-                // self.find('.fields_bundle-media_input-media').addClass('active');
-                // self.find('.fields_bundle-media_input-empty').removeClass('active');
-                self.find('input[type=checkbox]').eq(0).prop('checked', false).change();
-            });
+            // self.on('click', '.fields_bundle-media_input-embed', function()
+            // {
+            //     self.find('textarea').show()
+            //     // self.find('.fields_bundle-media_input-media').addClass('active');
+            //     // self.find('.fields_bundle-media_input-empty').removeClass('active');
+            //     self.find('input[type=checkbox]').eq(0).prop('checked', false).change();
+            // });
 
             /* validate embed code */
             self.on('paste', '.fields_bundle-media_input-add-embed', function(e, input)
@@ -80,6 +85,7 @@
                     self.find('.fields_bundle-media_input-preview').html(input.val());
                     self.find('.fields_bundle-media_input-media').addClass('active');
                     self.find('.fields_bundle-media_input-empty').removeClass('active');
+                    self.find('input[type=checkbox]').eq(0).prop('checked', false);
                 }, 0);
             });
 
@@ -114,6 +120,7 @@
                             self.find('.fields_bundle-media_input-preview').html('<img src="'+e.target.result+'"/>');
                             self.find('.fields_bundle-media_input-media').addClass('active');
                             self.find('.fields_bundle-media_input-empty').removeClass('active');
+                            self.find('input[type=checkbox]').eq(0).prop('checked', false);
                             //APPLY($input, $input_cropped);
                         };
                     })(file);

@@ -72,6 +72,9 @@ class MediaFieldValue(FieldFile):
 
     def save(self, name, content, save=True):
 
+        print name, type(name)
+        print content, type(content)
+
         final_name = None
 
         # Delete previous saved storage content if exists
@@ -110,6 +113,7 @@ class MediaFieldValue(FieldFile):
             final_name = "image|%s" % name
 
             setattr(self.instance, self.field.name, final_name)
+            self.name = final_name
 
             # Update the filesize cache
             self._size = content.size

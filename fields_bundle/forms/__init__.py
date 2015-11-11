@@ -4,4 +4,5 @@ from .price import PriceField, PriceInput
 from .image import ImageInput, CroppedImageField, CroppedImageInput
 from .date import DateField, DateTimeField, DateTimeInput, DateInput
 from .media import MediaInput, MediaField
-from .html import HtmlInput, InlineHtmlInput
+from .html import HtmlField, HtmlInput
+from .text import TextField, TextInput

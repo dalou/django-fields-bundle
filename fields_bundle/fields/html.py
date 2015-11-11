@@ -2,7 +2,7 @@
 # from tinymce.models import HTMLField as TinyMceHTMLField
 
 from django.db import models
-from ..forms import HtmlInput, InlineHtmlInput
+from ..forms import HtmlInput
 
 
 # class HTMLField(TinyMceHTMLField):
@@ -21,10 +21,7 @@ class HTMLField(models.TextField):
         # if defaults['widget'] == admin_widgets.AdminTextareaWidget:
         #     defaults['widget'] = tinymce_widgets.AdminTinyMCE
 
-        if kwargs.get('inline', True):
-            defaults['widget'] = InlineHtmlInput(attrs={'placeholder': self.verbose_name})
-        else:
-            defaults['widget'] = HtmlInput(attrs={'placeholder': self.verbose_name})
+        defaults['widget'] = HtmlInput(attrs={'placeholder': self.verbose_name})
 
         return super(HTMLField, self).formfield(**defaults)
 

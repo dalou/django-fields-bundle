@@ -74,7 +74,8 @@ class MediaInput(forms.widgets.ClearableFileInput):
         if not self.is_required and CheckboxInput().value_from_datadict(
                 data, files, self.clear_checkbox_name(name)):
             return False
-        print data, files
+
+        print name, files.get(name, None), data.get(name, None)
         if files:
             return files.get(name, None)
         else:
@@ -89,7 +90,7 @@ class MediaField(forms.FileField):
 
     def __init__(self, *args, **kwargs):
 
-        required = kwargs.get('required', False)
+        # required = kwargs.get('required', False)
         #widget = kwargs.pop('widget', None)
         # widget = MediaInput( attrs={
         #     'class': 'fields_bundle-media_field',
@@ -97,7 +98,7 @@ class MediaField(forms.FileField):
         #     # 'style': 'display:none;',
         # })
         # kwargs['widget'] = widget
-        kwargs['label'] = ""
+        # kwargs['label'] = ""
 
         super(MediaField, self).__init__(*args, **kwargs)
 
