@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
 import os
+import copy
+import uuid
+import urlparse
 from django.conf import settings
 import fields_bundle.settings
 from django import forms
@@ -10,7 +13,6 @@ from django.utils.html import escape
 from django.template import Context
 from django.utils.encoding import force_unicode
 from django.template.loader import render_to_string
-import uuid
 
 try:
     from collections import OrderedDict as SortedDict
@@ -26,6 +28,9 @@ except ImportError:
         from django.utils.encoding import smart_unicode
     except ImportError:
         from django.forms.util import smart_unicode
+
+def is_absolute(url):
+    return bool(urlparse.urlparse(url).netloc)
 
 
 class HtmlField(forms.CharField):
@@ -75,7 +80,7 @@ class HtmlInput(forms.Textarea):
         return config_json
 
     def get_tinymce_config(self, name, attrs):
-        config = fields_bundle.settings.FIELDS_BUNDLE_TINYMCE_DEFAULT_CONFIG.copy()
+        config = copy.deepcopy(fields_bundle.settings.FIELDS_BUNDLE_TINYMCE_DEFAULT_CONFIG)
         config.update(self.tinymce)
         # if mce_config['mode'] == 'exact':
         #
@@ -98,9 +103,8 @@ class HtmlInput(forms.Textarea):
         if config.get('content_css', None):
             content_css_new = []
             for url in config['content_css'].split(','):
-                if  not url.startswith('http:') or \
-                    not url.startswith('https:') or \
-                    not url.startswith('//'):
+                url = url.strip()
+                if not is_absolute(url):
                     content_css_new.append(os.path.join(settings.STATIC_URL, url))
                 else:
                     content_css_new.append(url)
@@ -109,11 +113,9 @@ class HtmlInput(forms.Textarea):
         if 'external_plugins' in config:
 
             for key, url in config['external_plugins'].items():
-                if  not url.startswith('http:') or \
-                    not url.startswith('https:') or \
-                    not url.startswith('//'):
+                url = url.strip()
+                if not is_absolute(url):
                     config['external_plugins'][key] = os.path.join(settings.STATIC_URL, url)
-
 
         return config
 

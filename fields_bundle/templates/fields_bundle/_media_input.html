@@ -4,11 +4,11 @@
 
         <span class="fields_bundle-media_input-preview">{{ value.html|safe }}</span>
         <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-change">
-            {{ change_message|default:"Retirer"|safe }}
+            {{ change_message|default:"Changer"|safe }}
         </button>
         <!-- {% if not required %}
         <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-remove">
-            {{ remove_message|default:"Retirer"|safe }}
+            {{ remove_message|default:"Changer"|safe }}
         </button>
         {% endif %} -->
     </span>
@@ -22,7 +22,7 @@
         </button>
         {% if not only_file %}
         <span class="fields_bundle-media_input-or">ou</span>
-        <input type="text" {% if not value.is_image %}name="{{ name }}"{% endif %} class="form-control fields_bundle-media_input-add-embed" placeholder="{{ empty_message|default:"Coller ici un code embed"|safe }}" />
+        <input type="text" {{ input_attrs|safe }} {% if not value.is_embed %}name="{{ name }}"{% endif %} class="form-control fields_bundle-media_input-add-embed" placeholder="{{ empty_message|default:"un code embed"|safe }}" />
         {% endif %}
     </span>
     <span class="fields_bundle-media_input-inputs">
@@ -40,8 +40,8 @@
         .fields_bundle-media_input-media:hover .fields_bundle-media_input-button { opacity:1; }
         .fields_bundle-media_input > span { display:none; }
         .fields_bundle-media_input .active { display:inline-block; }
-        .fields_bundle-media_input-change { position:absolute; top:5px; left:0px; right:0px; margin: auto; }
-        .fields_bundle-media_input-remove { position:absolute; bottom:5px; left:0px; right:0px; margin: auto; }
+        .fields_bundle-media_input-change { position:absolute; top:5px; left:5px; right:0px; margin: auto; }
+        .fields_bundle-media_input-remove { position:absolute; bottom:5px; left:5px; right:0px; margin: auto; }
     </style>
     <script>
         $('#div_{{ id }}').each(function(self)

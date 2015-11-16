@@ -18,6 +18,8 @@ except:
     def get_thumbnail(image_url, *args, **kwargs):
         return image_url
 
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -44,12 +46,14 @@ class MediaInput(forms.widgets.ClearableFileInput):
         super(MediaInput, self).__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None):
+        print "MediaInput.render : ", name, type(value), value, self.is_initial(value)
         if value is None:
             value = ''
 
         field = super(MediaInput, self).render(name, value, attrs=attrs)
 
         in_memory = False
+
 
         if isinstance(value, InMemoryUploadedFile):
             in_memory = True
@@ -70,16 +74,25 @@ class MediaInput(forms.widgets.ClearableFileInput):
             context['clear'] = CheckboxInput().render(checkbox_name, False, attrs={'id': checkbox_id})
         return render_to_string(self.template_name, Context(context))
 
+
+    # def decompress(self, value):
+    #     if value:
+    #         return value.split(' ')
+    #     return [None, None]
+
     def value_from_datadict(self, data, files, name):
+        print 'MediaInput.value_from_datadict : ', name, (files.get(name, None), data.get(name, None))
         if not self.is_required and CheckboxInput().value_from_datadict(
                 data, files, self.clear_checkbox_name(name)):
             return False
 
-        print name, files.get(name, None), data.get(name, None)
+
         if files:
             return files.get(name, None)
         else:
             return data.get(name, None)
+
+        # return files.get(name, None), data.get(name, None)
 
 
 class MediaField(forms.FileField):
@@ -104,19 +117,19 @@ class MediaField(forms.FileField):
 
 
     def to_python(self, data):
-        #print 'TO PYTHON DATA', data
+        # print 'MediaFormField.to_python : ', data, type(data)
         return data
 
     def has_changed(self, initial, data):
-        #print 'CHANGED DATA', data, initial
+        # print 'MediaFormField.has_changed:', data, type(data)
         if data is None:
             return super(MediaField, self).has_changed(initial, data)
         return True
 
     def bound_data(self, data, initial):
-        #print 'BOUND DATA', data, initial
-        # if data in (None, FILE_INPUT_CONTRADICTION):
-        #     return initial
+        print 'MediaFormField.bound_data:', data, type(data), initial, type(initial)
+        if not data and initial:
+            return initial
         return data
 
     def clean(self, data, initial=None):
