@@ -1,6 +1,6 @@
 .fields_bundle-media_input-media { position: relative; text-align: center; display: inline-block; }
 .fields_bundle-media_input-button { opacity:0; }
-.fields_bundle-media_input-preview { min-height: 130px; }
+.fields_bundle-media_input-preview {  }
 .fields_bundle-media_input-media:hover .fields_bundle-media_input-button { opacity:1; }
 .fields_bundle-media_input > span { display:none; }
 .fields_bundle-media_input .active { display:inline-block; }

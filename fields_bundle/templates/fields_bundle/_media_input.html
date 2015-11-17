@@ -15,7 +15,9 @@
 
     <span class="fields_bundle-media_input-media {% if value %}active{% endif %}">
 
-        <span class="fields_bundle-media_input-preview">{{ value.html|safe }}</span>
+        <span class="fields_bundle-media_input-preview" style="background-image: url({{ value.url }});">
+            {{ value.html|safe }}
+        </span>
        <!--  <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-change">
             {{ change_message|default:"Changer"|safe }}
         </button>-->

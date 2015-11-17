@@ -91,7 +91,9 @@ $(document).ready(function() {
                 reader.onload = (function(newFile)
                 {
                     return function(e) {
-                        self.find('.fields_bundle-media_input-preview').html('<img src="'+e.target.result+'"/>');
+                        self.find('.fields_bundle-media_input-preview').html('<img src="'+e.target.result+'"/>').css({
+                            backgroundImage: 'url(' + e.target.result + ')'
+                        });
                         self.find('.fields_bundle-media_input-media').addClass('active');
                         self.find('.fields_bundle-media_input-empty').removeClass('active');
                         inputs.find('input[type=checkbox]').eq(0).prop('checked', false);
