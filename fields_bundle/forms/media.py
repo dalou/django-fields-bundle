@@ -27,16 +27,17 @@ logger = logging.getLogger(__name__)
 
 class MediaInput(forms.widgets.ClearableFileInput):
     template_name = 'fields_bundle/_media_input.html'
-    # class Media:
-    #     css = {
-    #         'all': (
-    #             # settings.STATIC_URL + 'fields_bundle/image_cropped.css',
-    #         )
-    #     }
-    #     js = (
-    #         # settings.STATIC_URL + 'fields_bundle/image_cropped.js',
-    #         # settings.STATIC_URL + 'js/cropper.js',
-    #     )
+    change_message = "Changer"
+    empty_message = "Changer"
+    class Media:
+        css = {
+            'all': (
+                'fields_bundle/medias.css',
+            )
+        }
+        js = (
+            'fields_bundle/medias.js',
+        )
 
 
     def __init__(self, *args, **kwargs):
@@ -69,6 +70,8 @@ class MediaInput(forms.widgets.ClearableFileInput):
             'value': value,
             'id': final_attrs['id'],
             'final_attrs': flatatt(final_attrs),
+            'change_message': self.change_message,
+            'empty_message': self.empty_message,
         }
         if not self.is_required:
             context['clear'] = CheckboxInput().render(checkbox_name, False, attrs={'id': checkbox_id})
@@ -128,7 +131,7 @@ class MediaField(forms.FileField):
 
     def bound_data(self, data, initial):
         print 'MediaFormField.bound_data:', data, type(data), initial, type(initial)
-        if not data and initial:
+        if data in [False, None] and initial:
             return initial
         return data
 

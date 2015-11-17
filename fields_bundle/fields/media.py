@@ -256,7 +256,7 @@ class MediaDescriptor(object):
         #print
         #print 'MediaDescriptor.__get__ : IN : ', self.field.name, value, type(value)
 
-        if value is None:
+        if value in [None, False, '']:
             value = None
 
         # Si on recupere la valeur unicode c'est la valeur en DB il faut la decompiler et
