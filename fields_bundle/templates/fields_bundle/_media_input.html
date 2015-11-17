@@ -3,6 +3,7 @@
         {{ clear }}
     {% endif %}
     <input class="fields_bundle-media_input-file" {{ input_attrs|safe }} type="file" {% if value.is_image %}name="{{ name }}"{% endif %} accept="image/*" />
+    <textarea type="text" {{ input_attrs|safe }} {% if not value.is_embed %}name="{{ name }}"{% endif %}></textarea>
 </span>
 
 <a class="fields_bundle-media_input {% if only_file %}fields_bundle-media_input-only_file{% endif %}"
@@ -31,9 +32,6 @@
         Ajouter un média
 
     </span>
-    <span class="fields_bundle-media_input-inputs">
-
-    </span>
 
     <div style="display:none;">
         <div class="modal fields_bundle-media_input-modal" id="div_{{ id }}_modal">
@@ -45,17 +43,19 @@
                     {% if not only_file %}
                         {{ "Image"|safe }}
                     {% else %}
-                        {{ "Ajouter"|safe }}
+                        {{ "Image"|safe }}
                     {% endif%}
+                    <br/>
+                    <span class="appicon appicon-media"></span>
                 </button>
                 {% if not only_file %}
+                <!-- <br/> -->
                 <span class="fields_bundle-media_input-or">ou</span>
-                <input type="text" {{ input_attrs|safe }} {% if not value.is_embed %}name="{{ name }}"{% endif %}
-                    class="form-control fields_bundle-media_input-add-embed" placeholder="un code embed" }}" />
+                <textarea class="form-control fields_bundle-media_input-add-embed"
+                    placeholder="Copiez collez une URL ou un code embed (youtube, dailymotion, soundcloud)"></textarea>
                 {% endif %}
             </div>
             <div class="modal-footer">
-                <button></button>
             </div>
         </div>
     </div>

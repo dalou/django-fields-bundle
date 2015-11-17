@@ -29,14 +29,12 @@ $(document).ready(function() {
             self.find('.fields_bundle-media_input-change').change();
             self.find('input[type=checkbox]').eq(0).prop('checked', true)
         });
-        modal.on('click', '', function()
+        modal.on('click', '.fields_bundle-media_input-remove', function()
         {
-
-
-            // self.find('.fields_bundle-media_input-media').removeClass('active');
-            // self.find('.fields_bundle-media_input-empty').addClass('active');
-            // self.find('.fields_bundle-media_input-embed').val('');
-            // self.find('input[type=checkbox]').eq(0).prop('checked', true)
+            self.find('.fields_bundle-media_input-media').removeClass('active');
+            self.find('.fields_bundle-media_input-empty').addClass('active');
+            self.find('.fields_bundle-media_input-embed').val('');
+            inputs.find('input[type=checkbox]').eq(0).prop('checked', true)
         });
 
         // self.on('click', '.fields_bundle-media_input-embed', function()
@@ -53,13 +51,13 @@ $(document).ready(function() {
             input = $(this);
             setTimeout(function(e) {
 
-                self.find('input[type=text]').attr('name', name);
-                self.find('input[type=file]').removeAttr('name');
+                inputs.find('textarea').attr('name', name).val(input.val());
+                inputs.find('input[type=file]').removeAttr('name');
+                inputs.find('input[type=checkbox]').eq(0).prop('checked', false);
 
                 self.find('.fields_bundle-media_input-preview').html(input.val());
                 self.find('.fields_bundle-media_input-media').addClass('active');
                 self.find('.fields_bundle-media_input-empty').removeClass('active');
-                self.find('input[type=checkbox]').eq(0).prop('checked', false);
             }, 0);
             $.magnificPopup.close();
         });
@@ -87,7 +85,7 @@ $(document).ready(function() {
             if(!file.type.match(/image.*/)) { }
             else
             {
-                inputs.find('input[type=text]').removeAttr('name');
+                inputs.find('textarea').removeAttr('name');
                 inputs.find('input[type=file]').attr('name', name);
                 var reader = new FileReader();
                 reader.onload = (function(newFile)
