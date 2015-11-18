@@ -152,12 +152,12 @@ class HtmlInput(forms.Textarea):
 
         if self.inline:
 
-            html = [u"""<span class="fields_bundle-tinymce_inline">
-                <span id="div_inline_%s" placeholder="%s">%s</span>
-                <span style="display:none;">
+            html = [u"""<div class="fields_bundle-tinymce_inline">
+                <div id="div_inline_%s" placeholder="%s">%s</div>
+                <div style="display:none;">
                     <textarea%s>%s</textarea>
-                </span>
-            </span>
+                </div>
+            </div>
             """ % (name, flatattrs.get('placeholder'), mark_safe(value), flatatt(flatattrs), escape(value))]
             return mark_safe('\n'.join(html))
 

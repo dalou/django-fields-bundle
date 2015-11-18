@@ -104,22 +104,8 @@ class MediaFieldEmbed(object):
         patterns = EMBED_TYPES.get(self.type)
         if patterns:
             for pattern in patterns:
-                print pattern[0]
-                print
-                print pattern[1]
-                print
-                print self.name
-                print
-
-
                 result = re.search(pattern[0], self.name)
-                if result:
-                    print ' RESULT', result.group(0)
-                    print
-
                 html = re.sub(pattern[0], pattern[1], self.name)
-                print html
-                print
                 if html != self.name:
                     return html
         return ''
