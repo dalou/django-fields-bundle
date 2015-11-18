@@ -9,6 +9,7 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.contrib.admin import widgets as admin_widgets
 from django.forms.widgets import flatatt
+from django.utils.html import strip_tags
 from django.utils.html import escape
 from django.template import Context
 from django.utils.encoding import force_unicode
@@ -64,6 +65,14 @@ class HtmlInput(forms.Textarea):
         tinymce = tinymce or {}
         self.tinymce = tinymce
         self.inline = inline
+
+
+    # USE BLEACH FOR FUTURE
+    def value_from_datadict(self, data, files, name):
+        value = data.get(name, None)
+        if value and self.tinymce and self.tinymce.get('apply_format') == "text":
+            value = strip_tags(value.replace('<br />', '\n').replace('<br/>', '\n'))
+        return value
 
 
     def get_config_json(self, config):
@@ -127,6 +136,10 @@ class HtmlInput(forms.Textarea):
         flatattrs = self.build_attrs(attrs)
         flatattrs['name'] = name
 
+
+        if self.tinymce and self.tinymce.get('apply_format') == "text":
+            value = strip_tags(value).replace('\n', '<br />').replace('\n', '<br />')
+
         config = {
             'inline': self.inline,
             'type' : 'tinymce',
@@ -139,12 +152,12 @@ class HtmlInput(forms.Textarea):
 
         if self.inline:
 
-            html = [u"""<div class="fields_bundle-tinymce_inline">
-                <div id="div_inline_%s" placeholder="%s">%s</div>
-                <div style="display:none;">
+            html = [u"""<span class="fields_bundle-tinymce_inline">
+                <span id="div_inline_%s" placeholder="%s">%s</span>
+                <span style="display:none;">
                     <textarea%s>%s</textarea>
-                </div>
-            </div>
+                </span>
+            </span>
             """ % (name, flatattrs.get('placeholder'), mark_safe(value), flatatt(flatattrs), escape(value))]
             return mark_safe('\n'.join(html))
 

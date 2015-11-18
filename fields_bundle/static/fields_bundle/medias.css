@@ -3,7 +3,7 @@
 .fields_bundle-media_input-preview {  }
 .fields_bundle-media_input-media:hover .fields_bundle-media_input-button { opacity:1; }
 .fields_bundle-media_input > span { display:none; }
-.fields_bundle-media_input .active { display:inline-block; }
+.fields_bundle-media_input .active { display:block; }
 .fields_bundle-media_input-change { margin: auto; }
 .fields_bundle-media_input-remove { position:absolute; bottom:5px; left:5px; right:0px; margin: auto; }
 .fields_bundle-media_input-modal {}

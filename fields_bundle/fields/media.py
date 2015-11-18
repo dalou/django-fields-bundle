@@ -15,6 +15,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
 
 from fields_bundle.forms import MediaField as MediaFormField, MediaInput
+from fields_bundle.forms.media import EMBED_TYPES
 
 IMAGE_FIELD_DELIMITER = "?"
 
@@ -25,6 +26,7 @@ IMAGE_FIELD_DELIMITER = "?"
 # - Pinterest
 # - Mixcloud
 # - Dailymotion
+
 
 
 class MediaFieldImage(FieldFile):
@@ -40,7 +42,7 @@ class MediaFieldImage(FieldFile):
     def save(self, name, content, save=True):
         name = self.field.generate_filename(self.instance, name)
 
-        print 'MediaFieldImage.save', name
+        # print 'MediaFieldImage.save', name
 
         args, varargs, varkw, defaults = getargspec(self.storage.save)
         if 'max_length' in args:
@@ -81,15 +83,14 @@ class MediaFieldEmbed(object):
 
     def save(self, name, value, save=True):
 
-        youtube = re.search(r'(http[s]?\:\/\/www\.youtube\.com\/embed\/[^"]+)"?', name)
-        if youtube:
-            self.type = "youtube"
-            self.name = youtube.group(1)
-
-        soundcloud = re.search(r'(http[s]?\:\/\/[w]+\.soundcloud\.com\/player\/[^"]+)"?', name)
-        if soundcloud:
-            self.type = "soundcloud"
-            self.name = soundcloud.group(1)
+        for type_name, patterns in EMBED_TYPES.items():
+            for pattern in patterns:
+                # regex = re.compile(pattern)
+                result = re.search(pattern[0], name)
+                if result:
+                    print 'SAVE WITH RESULT', result.group(0)
+                    self.type = type_name
+                    self.name = result.group(0)
 
         setattr(self.instance, self.field.name, self.name)
         return self
@@ -99,12 +100,29 @@ class MediaFieldEmbed(object):
         if self.name and not self.type in self.field.authorized_types:
             return ''
 
-        if self.type in ['youtube']:
-            return """<iframe class="fields_bundle-media" src="%s" frameborder="0" allowfullscreen></iframe>""" % self.name
-        elif self.type in ['soundcloud']:
-            return """<iframe class="fields_bundle-media" src="%s" scrolling="no" frameborder="0" allowfullscreen></iframe>""" % self.name
-        else:
-            return """<iframe class="fields_bundle-media" src="%s" scrolling="no" frameborder="0" allowfullscreen></iframe>""" % self.name
+
+        patterns = EMBED_TYPES.get(self.type)
+        if patterns:
+            for pattern in patterns:
+                print pattern[0]
+                print
+                print pattern[1]
+                print
+                print self.name
+                print
+
+
+                result = re.search(pattern[0], self.name)
+                if result:
+                    print ' RESULT', result.group(0)
+                    print
+
+                html = re.sub(pattern[0], pattern[1], self.name)
+                print html
+                print
+                if html != self.name:
+                    return html
+        return ''
     html = property(_get_html)
 
     # def __init__(self, instance, field, name):
@@ -296,7 +314,7 @@ class MediaDescriptor(object):
             value.instance = instance
             value.field = self.field
             value.storage = self.field.storage
-            print "Already an image", value.name
+            # print "Already an image", value.name
 
         # Finally, because of the (some would say boneheaded) way pickle works,
         # the underlying FieldFile might not actually itself have an associated
@@ -356,7 +374,7 @@ class MediaField(FileField):
         django.core.exceptions.ValidationError if the data can't be converted.
         Returns the converted value. Subclasses should override this.
         """
-        print "MediaField.to_python : ", value, type(value)
+        # print "MediaField.to_python : ", value, type(value)
         return value
 
     def save_form_data(self, instance, data):
@@ -383,9 +401,9 @@ class MediaField(FileField):
             value = "%s|%s" % (value.type, value.name)
         else:
             value = None
-        print
-        print "MediaField.pre_save : ", self.name, value, type(value)
-        print
+        # print
+        # print "MediaField.pre_save : ", self.name, value, type(value)
+        # print
         return value
 
     def formfield(self, **kwargs):

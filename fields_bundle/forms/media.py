@@ -3,6 +3,7 @@
 import re
 import os
 import logging
+import json
 
 from django.conf import settings
 from django import forms
@@ -11,6 +12,7 @@ from django.forms.widgets import FILE_INPUT_CONTRADICTION, CheckboxInput, FileIn
 from django.utils.encoding import force_unicode
 from django.template.loader import render_to_string
 from django.forms.utils import flatatt
+from django.utils.safestring import mark_safe
 from django.core.files.uploadedfile import InMemoryUploadedFile
 try:
     from sorl.thumbnail.shortcuts import get_thumbnail
@@ -19,10 +21,32 @@ except:
         return image_url
 
 
-
 logger = logging.getLogger(__name__)
 
 
+EMBED_TYPES = {
+    'youtube': [
+        (
+            r'(https?://)?(www\.)?'
+            '(youtube|youtu|youtube-nocookie)\.(com|be)/'
+            '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?\s"]{11})',
+
+            '<iframe class="fields_bundle-media" src="'
+            'https://www.youtube.com/embed/\\6?controls=0&amp;showinfo=0"'
+            'scrolling="no" frameborder="no" allowfullscreen></iframe>'
+        )
+    ],
+    'soundcloud': [
+        (
+            r'(http[s]?\:\/\/w\.soundcloud\.com\/player\/\?url=([^"]+))',
+            '<iframe class="fields_bundle-media" src="https://w.soundcloud.com/player/?url=\\2" scrolling="no" frameborder="no" allowfullscreen></iframe>'
+        ),
+        (
+            r'(http[s]?\:\/\/soundcloud\.com\/[\d\w\-_]+/[\d\w\-_]+)',
+            '<iframe class="fields_bundle-media" src="https://w.soundcloud.com/player/?url=\\1" scrolling="no" frameborder="no" allowfullscreen></iframe>'
+        )
+    ]
+}
 
 
 class MediaInput(forms.widgets.ClearableFileInput):
@@ -47,7 +71,7 @@ class MediaInput(forms.widgets.ClearableFileInput):
         super(MediaInput, self).__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None):
-        print "MediaInput.render : ", name, type(value), value, self.is_initial(value)
+        # print "MediaInput.render : ", name, type(value), value, self.is_initial(value)
         if value is None:
             value = ''
 
@@ -72,6 +96,7 @@ class MediaInput(forms.widgets.ClearableFileInput):
             'final_attrs': flatatt(final_attrs),
             'change_message': self.change_message,
             'empty_message': self.empty_message,
+            'embed_types': json.dumps(EMBED_TYPES)
         }
         if not self.is_required:
             context['clear'] = CheckboxInput().render(checkbox_name, False, attrs={'id': checkbox_id})
@@ -84,7 +109,7 @@ class MediaInput(forms.widgets.ClearableFileInput):
     #     return [None, None]
 
     def value_from_datadict(self, data, files, name):
-        print 'MediaInput.value_from_datadict : ', name, (files.get(name, None), data.get(name, None))
+        # print 'MediaInput.value_from_datadict : ', name, (files.get(name, None), data.get(name, None))
         if not self.is_required and CheckboxInput().value_from_datadict(
                 data, files, self.clear_checkbox_name(name)):
             return False
@@ -130,7 +155,7 @@ class MediaField(forms.FileField):
         return True
 
     def bound_data(self, data, initial):
-        print 'MediaFormField.bound_data:', data, type(data), initial, type(initial)
+        # print 'MediaFormField.bound_data:', data, type(data), initial, type(initial)
         if data in [False, None] and initial:
             return initial
         return data

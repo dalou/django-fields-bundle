@@ -3,7 +3,7 @@ $(document).ready(function() {
 
 
 
-    $(document).on('mouseenter', '.fields_bundle-media_input', function(self, only_file, authorized_types, modal, inputs, name)
+    $(document).on('mouseenter', '.fields_bundle-media_input', function(self, only_file, authorized_types, modal, inputs, name, embed_types)
     {
         if(this.fields_bundle_media_input_active)
         {
@@ -17,6 +17,7 @@ $(document).ready(function() {
         modal = self.find('.fields_bundle-media_input-modal');
         inputs = $(self.data('inputs'))
         name = self.data('name')
+        embed_types = self.data('embed-types')
 
 
         var $form = $(inputs.find('input').eq(0)[0].form);
@@ -51,15 +52,43 @@ $(document).ready(function() {
             input = $(this);
             setTimeout(function(e) {
 
-                inputs.find('textarea').attr('name', name).val(input.val());
-                inputs.find('input[type=file]').removeAttr('name');
-                inputs.find('input[type=checkbox]').eq(0).prop('checked', false);
+                var value = input.val();
+                var embed_value = null;
 
-                self.find('.fields_bundle-media_input-preview').html(input.val());
-                self.find('.fields_bundle-media_input-media').addClass('active');
-                self.find('.fields_bundle-media_input-empty').removeClass('active');
+
+                for(var type in embed_types)
+                {
+                    var patterns = embed_types[type];
+                    for(var i in patterns)
+                    {
+                        var regex = new RegExp(patterns[i][0], 'gi');
+                        var result = value.match(regex)
+                        console.log(regex.exec(value))
+                        if(result)
+                        {
+                            console.log(result[0], type, patterns[i][1], result);
+                            embed_value = result[0].replace(regex, patterns[i][1].replace('\\', '$'));
+                            console.log(embed_value);
+                            break;
+                        }
+                    }
+                }
+
+                if(embed_value)
+                {
+                    inputs.find('textarea').attr('name', name).val(value);
+                    inputs.find('input[type=file]').removeAttr('name');
+                    inputs.find('input[type=checkbox]').eq(0).prop('checked', false);
+
+                    self.find('.fields_bundle-media_input-preview').html(embed_value).css({
+                        backgroundImage: ''
+                    });
+                    self.find('.fields_bundle-media_input-media').addClass('active');
+                    self.find('.fields_bundle-media_input-empty').removeClass('active');
+                    $.magnificPopup.close();
+                }
+
             }, 0);
-            $.magnificPopup.close();
         });
 
         /* click to add image from input file */

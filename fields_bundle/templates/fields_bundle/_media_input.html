@@ -11,11 +11,12 @@
     data-modal="#div_{{ id }}_modal"
     data-inputs="#div_{{ id }}_inputs"
     data-name="{{ name }}"
+    data-embed-types='{{ embed_types }}'
     >
 
     <span class="fields_bundle-media_input-media {% if value %}active{% endif %}">
 
-        <span class="fields_bundle-media_input-preview" style="background-image: url({{ value.url }});">
+        <span class="fields_bundle-media_input-preview" {% if value.is_image %}style="background-image: url({{ value.url }});"{% endif %}>
             {{ value.html|safe }}
         </span>
        <!--  <button type="button" class="btn btn-primary fields_bundle-media_input-button fields_bundle-media_input-change">
