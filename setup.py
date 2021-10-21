@@ -60,7 +60,7 @@ setup(
     install_requires=[
         'django >= 1.8.4, <= 1.9',
         "jsonfield == 1.0.3",
-        "babel == 1.3",
+        "babel == 2.9.1",
         "django-tinymce == 2.0.5"
     ],
 )
